@@ -16,6 +16,47 @@ const PluginConfig CPPPlugin::config{
         "2022-12-31"        // 可选：日期
 };
 
+CSimpleIniA RobotINI;//ini 文件操作对象
+//常量，配置文件的绝对路径(相对路径会出问题)
+const std::string iniPath = "C:\\MCSManager_v9.6.0_win_x64\\daemon\\data\\InstanceData\\bfcdb53587f7455d88c1801691ccd56a\\Mirai.ini";
+
+void iniInitialize(std::string FilePath) //初始化配置文件存储
+{
+    RobotINI.SetUnicode(); // 默认使用 UTF-8 编码
+    RobotINI.LoadFile(FilePath.c_str());
+    RobotINI.SetValue("Initialize","True","1");
+    RobotINI.SaveFile(FilePath.c_str());
+    Logger::logger.info("[System]启动阶段读取 ini 文件请求成功。");
+}
+
+std::string iniQuery(std::string FilePath,std::string Section,std::string Name) //查询配置文件内的键值
+{
+    RobotINI.SetUnicode();
+    RobotINI.LoadFile(FilePath.c_str());
+    const char * ReturnValue = RobotINI.GetValue(Section.c_str(),Name.c_str(),"未找到");
+    int ReturnCode = RobotINI.SaveFile(FilePath.c_str());
+    if(ReturnCode < 0)
+    {
+        return "未找到";
+    }
+    else
+    {
+        return ReturnValue;
+    }
+}
+
+void iniWrite(std::string FilePath,std::string Section,std::string Name,std::string Value)//向配置文件写入键值
+{
+    RobotINI.SetUnicode();
+    RobotINI.LoadFile(FilePath.c_str());
+    RobotINI.SetValue(Section.c_str(),Name.c_str(),Value.c_str());
+    int ReturnCode = RobotINI.SaveFile(FilePath.c_str());
+    if(ReturnCode < 0)
+    {
+        Logger::logger.error("[INISystem]文件写入出现问题。");
+    }
+}
+
 // 插件实例
 class Main : public CPPPlugin {
 public:
